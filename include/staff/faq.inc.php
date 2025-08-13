@@ -190,7 +190,28 @@ if ($faq && count($langs) > 1) { ?>
 list($draft, $attrs) = Draft::getDraftAndDataAttrs('faq', $namespace, $answer);
 echo $attrs; ?>><?php echo $draft ?: Format::viewableImages($answer);
         ?></textarea>
-
+    </div>
+<?php if ($tag == $cfg->getPrimaryLanguage()) { ?>
+    <div style="margin-top:5px;">
+        <input type="button" id="geminiDraft" value="<?php echo __('Generate Draft'); ?>">
+    </div>
+    <script type="text/javascript">
+    document.getElementById('geminiDraft').addEventListener('click', async function() {
+        const topic = document.querySelector('input[name="question"]').value;
+        const content = document.querySelector('textarea[name="answer"]').value;
+        try {
+            const res = await fetch('../api/gemini.php', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({action: 'kb', topic: topic, content: content})
+            });
+            const data = await res.json();
+            if (data.article)
+                document.querySelector('textarea[name="answer"]').value = data.article;
+        } catch (e) { console.log(e); }
+    });
+    </script>
+<?php } ?>
     </div>
     </div>
 <?php } ?>
