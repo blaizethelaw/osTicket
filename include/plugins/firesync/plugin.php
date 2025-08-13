@@ -7,6 +7,8 @@ class FireSyncPlugin extends Plugin {
     function bootstrap() {
         Signal::connect('ticket.created', array($this, 'onTicketEvent'));
         Signal::connect('threadentry.created', array($this, 'onThreadEntry'));
+        Signal::connect('ticket.assigned', array($this, 'onTicketAssigned'));
+        Signal::connect('ticket.status', array($this, 'onTicketStatus'));
     }
 
     function onTicketEvent(Ticket $ticket) {
@@ -28,6 +30,22 @@ class FireSyncPlugin extends Plugin {
             'created'   => $entry->getCreateDate(),
         );
         $this->postToFirestore('tickets_comments', $payload);
+    }
+
+    function onTicketAssigned(Ticket $ticket) {
+        $payload = array(
+            'ticket_id' => $ticket->getId(),
+            'assigned'  => $ticket->getAssigned(),
+        );
+        $this->postToFirestore('tickets_assigned', $payload);
+    }
+
+    function onTicketStatus(Ticket $ticket) {
+        $payload = array(
+            'ticket_id' => $ticket->getId(),
+            'status'    => $ticket->getStatus(),
+        );
+        $this->postToFirestore('tickets_status', $payload);
     }
 
     private function postToFirestore($collection, array $payload) {
