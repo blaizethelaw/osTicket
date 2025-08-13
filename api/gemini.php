@@ -33,6 +33,24 @@ case 'triage':
         $result = array('category' => '', 'priority' => '');
     break;
 
+case 'summary':
+    $text   = $data['text'] ?? '';
+    $prompt = "You are a support assistant. Summarize the conversation and suggest troubleshooting steps.\n"
+        . "Respond in JSON with keys summary and steps (an array of strings).\n"
+        . $text;
+    $response = GeminiClient::call($prompt);
+    if ($response === false || !is_array($response) || empty($response['candidates'])) {
+        error_log('Gemini API error: ' . json_encode($response));
+        http_response_code(502);
+        $result = array('summary' => '', 'steps' => array());
+        break;
+    }
+    $choice = $response['candidates'][0]['content']['parts'][0]['text'] ?? '';
+    $result = json_decode($choice, true);
+    if (!is_array($result) || !isset($result['summary']) || !isset($result['steps']))
+        $result = array('summary' => '', 'steps' => array());
+    break;
+
 case 'kb':
     $question = $data['question'] ?? '';
     $prompt = "You are a knowledge base assistant. Answer the user's question based on available information.\n"
