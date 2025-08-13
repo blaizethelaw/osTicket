@@ -17,6 +17,14 @@ $prompt  = "You are a ticket triage assistant. Choose the best category and prio
            "Subject: $subject\nBody: $body";
 
 $response = GeminiClient::call($prompt);
+if ($response === false || !is_array($response) || empty($response['candidates'])) {
+    error_log('Gemini API error: ' . json_encode($response));
+    http_response_code(502);
+    header('Content-Type: application/json');
+    echo json_encode(array('category' => '', 'priority' => ''));
+    exit;
+}
+
 $choice = $response['candidates'][0]['content']['parts'][0]['text'] ?? '';
 $result = json_decode($choice, true);
 if (!is_array($result))
