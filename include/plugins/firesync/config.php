@@ -8,6 +8,13 @@ class FireSyncPluginConfig extends PluginConfig {
                 'label' => 'Firebase Project ID',
                 'required' => true,
             )),
+            'verbose_logging' => new BooleanField(array(
+                'label' => 'Verbose Logging',
+                'default' => false,
+                'configuration' => array(
+                    'desc' => 'Log request and response data for debugging',
+                ),
+            )),
         );
     }
 
