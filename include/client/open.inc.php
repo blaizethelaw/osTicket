@@ -115,6 +115,7 @@ if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
   </table>
 <hr/>
   <p class="buttons" style="text-align:center;">
+        <input type="button" id="suggestFields" value="<?php echo __('Suggest Category/Priority'); ?>" onclick="suggestFields();">
         <input type="submit" value="<?php echo __('Create Ticket');?>">
         <input type="reset" name="reset" value="<?php echo __('Reset');?>">
         <input type="button" name="cancel" value="<?php echo __('Cancel'); ?>" onclick="javascript:
@@ -126,3 +127,27 @@ if ($info['topicId'] && ($topic=Topic::lookup($info['topicId']))) {
             window.location.href='index.php';">
   </p>
 </form>
+<script type="text/javascript">
+async function suggestFields() {
+    const subject = document.getElementById('subject') ? document.getElementById('subject').value : '';
+    const body = document.getElementById('message') ? document.getElementById('message').value : '';
+    try {
+        const res = await fetch('api/gemini.php', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({subject: subject, body: body})
+        });
+        const data = await res.json();
+        if (data.category) {
+            const cat = document.querySelector('select[name="category"]');
+            if (cat) cat.value = data.category;
+        }
+        if (data.priority) {
+            const pri = document.querySelector('select[name="priority"]');
+            if (pri) pri.value = data.priority;
+        }
+    } catch (e) {
+        console.log(e);
+    }
+}
+</script>
