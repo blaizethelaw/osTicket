@@ -135,7 +135,7 @@ async function suggestFields() {
         const res = await fetch('api/gemini.php', {
             method: 'POST',
             headers: {'Content-Type': 'application/json'},
-            body: JSON.stringify({subject: subject, body: body})
+            body: JSON.stringify({action: 'triage', subject: subject, body: body})
         });
         const data = await res.json();
         if (data.category) {
