@@ -49,7 +49,18 @@ class FireSyncPlugin extends Plugin {
             CURLOPT_POSTFIELDS => $body,
             CURLOPT_RETURNTRANSFER => true
         ));
-        curl_exec($ch);
+
+        $result = curl_exec($ch);
+        $status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        if ($result === false || $status != 200) {
+            $message = sprintf('FireSyncPlugin: Firestore post failed (status %s)', $status);
+            if ($result === false)
+                $message .= ' ' . curl_error($ch);
+            if ($this->getConfig()->get('verbose_logging')) {
+                $message .= sprintf(' Request: %s Response: %s', $body, var_export($result, true));
+            }
+            error_log($message);
+        }
         curl_close($ch);
     }
 
